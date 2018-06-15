@@ -83,3 +83,23 @@ decodeString('2[b3[a]]');
 // 1¢, 1¢, 2¢
 // 1¢, 3¢
 // 2¢, 2¢
+
+const changePossibilities = (amount, denominations, index) => {
+	var coinAmount = 0;
+	var ways = 0;
+	if (amount === 0) {
+		return 1;
+	}
+	if (index >= denominations.length) {
+		return 0;
+	}
+
+  while (coinAmount <= amount){ 
+    var remaining = amount - coinAmount
+    ways += changePossibilities(remaining, denominations, index+1)
+    coinAmount += denominations[index]
+  }
+  return ways 
+};
+
+changePossibilities(4, [1,2,3], 0)
