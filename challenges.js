@@ -33,40 +33,66 @@ sortByString('weather', 'therapyw');
 // For s = "2[b3[a]]", the output should be decodeString(s) = "baaabaaa"
 
 const decodeString = s => {
+    const stack = [];
+    let temp = ''
 
-    var intStack = [];
-    var charStack = [];
-    var temp = '';
-    var result = '';
-
-    //Adds stuff to both stacks
     for (let i = 0; i < s.length; i++) {
-        if (s[i] !== ']' && isNaN(parseInt(s[i]))) {
-            charStack.push(s[i]);
-        } else if (parseInt(s[i])) {
-            intStack.push(s[i]);
+        // if a number
+        if (!isNaN(s[i])) {
+            if (isNaN(temp)) {
+                stack.push(temp);
+                temp = '';
+            }
+            temp += s[i]
+        } else if (s[i] === '[') {
+            if (temp) {
+                stack.push(temp)
+                temp = ''
+            }
+        } else if (s[i] === ']') {
+            if (temp) {
+                stack.push(temp)
+                temp = ''
+            }
+            const str = stack.pop()
+            const num = stack.pop()
+            if (!isNaN(num)) {
+                stack.push(multiplyString(str, num))
+            } else {
+                stack.push(num + str)
+            }
         } else {
-            while (
-                charStack.length !== 0 &&
-                charStack[charStack.length - 1] !== '['
-            ) {
-                temp += charStack.pop();
+            if (!isNaN(temp) && temp) {
+                stack.push(temp)
+                temp = ''
             }
-
-            if (charStack[charStack.length - 1] === '[') {
-                charStack.pop();
-                charStack.push(temp.repeat(intStack.pop()));
-            }
-
-            temp = charStack.pop();
-
+            temp += s[i]
         }
     }
-    //reversing the string
-    for (let j = temp.length - 1; j >= 0; j--) {
-        result += temp[j];
+    return formatStack(stack);
+}
+
+const multiplyString = (str, num) => {
+    let productString = '';
+    for (let i = 0; i < num; i++) {
+        productString += str;
     }
-};
+    return productString;
+}
+
+const formatStack = stack => {
+    while (stack.length > 1) {
+        const lastEl = stack.pop();
+        const secondLastEl = stack.pop();
+
+        if (!isNaN(secondLastEl)) {
+            stack.push(multiplyString(lastEl, secondLastEl))
+        } else {
+            stack.push(secondLastEl + lastEl)
+        }
+    }
+    return stack.pop()
+}
 
 decodeString('2[b3[a]]');
 
@@ -85,21 +111,21 @@ decodeString('2[b3[a]]');
 // 2¢, 2¢
 
 const changePossibilities = (amount, denominations, index) => {
-	var coinAmount = 0;
-	var ways = 0;
-	if (amount === 0) {
-		return 1;
-	}
-	if (index >= denominations.length) {
-		return 0;
-	}
+    var coinAmount = 0;
+    var ways = 0;
+    if (amount === 0) {
+        return 1;
+    }
+    if (index >= denominations.length) {
+        return 0;
+    }
 
-  while (coinAmount <= amount){ 
-    var remaining = amount - coinAmount
-    ways += changePossibilities(remaining, denominations, index+1)
-    coinAmount += denominations[index]
-  }
-  return ways 
+    while (coinAmount <= amount) {
+        var remaining = amount - coinAmount
+        ways += changePossibilities(remaining, denominations, index + 1)
+        coinAmount += denominations[index]
+    }
+    return ways
 };
 
-changePossibilities(4, [1,2,3], 0)
+changePossibilities(4, [1, 2, 3], 0)
